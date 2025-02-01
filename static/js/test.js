@@ -19,7 +19,7 @@ function geoFindMe() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ latitude: latitude, longitude: longitude })
+      body: JSON.stringify({ latitude: latitude, longitude: longitude,employee_id: employee_id  })
     })
       .then(response => response.json())
       .then(data => console.log("Server Response:", data))
@@ -38,11 +38,4 @@ if (!navigator.geolocation) {
 }
 }
 
-while (true) {
-  var delayInMilliseconds = 1000*60*10; //10 minute
-
-setTimeout(function() {
-  geoFindMe()
-}, delayInMilliseconds);
-  
-}
+geoFindMe()

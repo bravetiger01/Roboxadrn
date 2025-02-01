@@ -198,7 +198,7 @@ def login():
                     if loginform.username.data == 'admin':
                         return redirect(url_for('dashboard', role='admin'))
                     else:
-                        return redirect(url_for('dashboard', role='employee'))
+                        return redirect(url_for('profile', role='employee'))
                 else:
                     flash("Wrong Credentials - Try Again!", "danger")
             else:
@@ -266,6 +266,8 @@ def profile():
 def geofence():
     return render_template('geofence.html')
 
+coordinates_str = []
+
 @app.route('/submit_geofence', methods=['POST'])
 def submit_geofence():
     data = request.get_json()
@@ -288,11 +290,16 @@ def submit_geofence():
             return jsonify({"status": "error", "message": "Invalid coordinates"}), 400
         if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
             return jsonify({"status": "error", "message": "Coordinates out of range"}), 400
+        
+    # Geofence points (hardcoded in the code) -  REPLACE WITH YOUR POINTS
+    location = ','.join([f"{point['lat']},{point['lng']}" for point in coordinates])
 
-    # Here you would typically save the geofence to the database or perform other logic
-    # For now, we'll just return a success message
-    
-    return jsonify({"status": "success", "message": "Geofence saved successfully"}), 200
+    coordinates_str = location
+
+    print('hello')
+
+    # Redirect to the 'geofence_result' route, passing the coordinates as query parameters
+    return redirect(url_for('dashboard', role='admin'))
 
 @app.route("/update_location", methods=['POST'])
 def update_location():
@@ -341,28 +348,27 @@ def is_inside_geofence(lat, lng, geofence_points):
 
     return inside
 
-# Geofence points (hardcoded in the code) -  REPLACE WITH YOUR POINTS
-geofence_points = [
-                    (15.4869153, 74.9306135),  
-                    (15.4783736, 74.9271729),  
-                    (15.4832603, 74.9465056),  
-                    (15.4920739, 74.9438794),]
-
-@app.route('/check_location', methods=['GET'])  # Changed to GET
+@app.route('/check_location', methods=['GET'])
 def check_location():
     try:
         lat = float(request.args.get('latitude'))
         lng = float(request.args.get('longitude'))
+        employee_id = request.args.get('employee_id')  # Get employee ID (or another identifier)
 
-        # Geofence points (hardcoded in the code) -  REPLACE WITH YOUR POINTS
-        geofence_points = [
-                            (15.4869153, 74.9306135),  
-                            (15.4783736, 74.9271729),  
-                            (15.4832603, 74.9465056),  
-                            (15.4920739, 74.9438794),]
+        
+        # Check if the location is inside the geofence
+        if is_inside_geofence(lat, lng, coordinates_str):
+            # If inside geofence, update the employee status
+            employee = Users.query.get(employee_id)  # Retrieve employee by ID
 
-        if is_inside_geofence(lat, lng, geofence_points):
-            result = {'status': 'inside', 'message': 'Location is inside the geofence.'}
+            if employee:
+                employee.status = 'On Site'
+                db.session.commit()  # Commit the change to the database
+
+            result = {
+                'status': 'inside',
+                'message': 'Location is inside the geofence. Employee status updated to "On Site".'
+            }
         else:
             result = {'status': 'outside', 'message': 'Location is outside the geofence.'}
 

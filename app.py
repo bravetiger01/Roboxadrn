@@ -249,59 +249,52 @@ def dashboard(role):
 def profile():
     return render_template('profile.html')
 
-@app.route('/set_geofence', methods=['POST'])
-def set_geofence():
-    lat1 = float(request.form['top_left_lat'])
-    lon1 = float(request.form['top_left_lon'])
-    lat2 = float(request.form['top_right_lat'])
-    lon2 = float(request.form['top_right_lon'])
-    lat3 = float(request.form['bottom_left_lat'])
-    lon3 = float(request.form['bottom_left_lon'])
-    lat4 = float(request.form['bottom_right_lat'])
-    lon4 = float(request.form['bottom_right_lon'])
+def is_inside_geofence(lat, lng, geofence_points):
+    """Checks if a point is inside a geofence."""
+    min_lat = min(p[0] for p in geofence_points)
+    max_lat = max(p[0] for p in geofence_points)
+    min_lng = min(p[1] for p in geofence_points)
+    max_lng = max(p[1] for p in geofence_points)
 
-    # Store the 4-point geofence coordinates
-    geofence = Geofence(top_left_lat=lat1, top_left_lon=lon1, 
-                        top_right_lat=lat2, top_right_lon=lon2, 
-                        bottom_left_lat=lat3, bottom_left_lon=lon3, 
-                        bottom_right_lat=lat4, bottom_right_lon=lon4)
-    db.session.add(geofence)
-    db.session.commit()
+    if not (min_lat <= lat <= max_lat and min_lng <= lng <= max_lng):
+        return False
 
-    return "Geofence has been set successfully!", 200
+    inside = False
+    for i in range(len(geofence_points)):
+        j = (i + 1) % len(geofence_points)
+        lat_i, lng_i = geofence_points[i]
+        lat_j, lng_j = geofence_points[j]
 
-@app.route('/update_location', methods=['POST'])
-def update_location():
-    data = request.json
-    emp_lat, emp_lon = data['latitude'], data['longitude']
+        if (lng_i < lng and lng_j >= lng) or (lng_j < lng and lng_i >= lng):
+            if lat_i + (lat_j - lat_i) * (lng - lng_i) / (lng_j - lng_i) < lat:
+                inside = not inside
 
-    geofence = Geofence.query.first()
-    if geofence:
-        # Geofence coordinates
-        lat1, lon1 = geofence.top_left_lat, geofence.top_left_lon
-        lat2, lon2 = geofence.top_right_lat, geofence.top_right_lon
-        lat3, lon3 = geofence.bottom_left_lat, geofence.bottom_left_lon
-        lat4, lon4 = geofence.bottom_right_lat, geofence.bottom_right_lon
+    return inside
 
-        # Check if employee is within the geofence (Rectangle check)
-        # Latitude range: between bottom and top latitude
-        lat_min = min(lat1, lat3)
-        lat_max = max(lat1, lat3)
-        
-        # Longitude range: between left and right longitude
-        lon_min = min(lon1, lon2)
-        lon_max = max(lon1, lon2)
+@app.route('/check_location', methods=['GET'])  # Changed to GET
+def check_location():
+    try:
+        lat = float(request.args.get('latitude'))
+        lng = float(request.args.get('longitude'))
 
-        if lat_min <= emp_lat <= lat_max and lon_min <= emp_lon <= lon_max:
-            status = "on-site"
+        # Geofence points (hardcoded in the code) -  REPLACE WITH YOUR POINTS
+        geofence_points = [
+                            (15.4869153, 74.9306135),  
+                            (15.4783736, 74.9271729),  
+                            (15.4832603, 74.9465056),  
+                            (15.4920739, 74.9438794),]
+
+        if is_inside_geofence(lat, lng, geofence_points):
+            result = {'status': 'inside', 'message': 'Location is inside the geofence.'}
         else:
-            status = "off-site"
+            result = {'status': 'outside', 'message': 'Location is outside the geofence.'}
 
-       
+        return jsonify(result), 200
 
-        return jsonify({'status': status})
-
-    return jsonify({'error': 'Geofence not set'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid input. Please provide latitude and longitude as numbers.'}), 400
+    except Exception as e:
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
 @app.route("/upload_file", methods=["POST","GET"])
 def upload_file():

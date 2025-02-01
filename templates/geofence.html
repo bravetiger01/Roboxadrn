@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geofence Input with Map</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
+    <style>
+        .coordinate-pair {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: crosshair;
+        }
+        .map-instructions {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .point-counter {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Geofence Corner Points</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="map-instructions alert alert-info">
+                            <strong>How to add points:</strong>
+                            <ul class="mb-0">
+                                <li>Click on the map to add corner points</li>
+                                <li>Points will be automatically added to the form below</li>
+                                <li>Click "Reset" to clear all points and start over</li>
+                            </ul>
+                        </div>
+
+                        <div id="map">
+                            <div class="point-counter">Points: <span id="pointCount">0</span>/4</div>
+                        </div>
+
+                        <form id="geofenceForm">
+                            <!-- Corner 1 -->
+                            <div class="coordinate-pair">
+                                <h5 class="text-muted mb-3">Corner Point 1</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="1" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="1" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Corner 2 -->
+                            <div class="coordinate-pair">
+                                <h5 class="text-muted mb-3">Corner Point 2</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="2" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="2" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Corner 3 -->
+                            <div class="coordinate-pair">
+                                <h5 class="text-muted mb-3">Corner Point 3</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="3" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="3" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Corner 4 -->
+                            <div class="coordinate-pair">
+                                <h5 class="text-muted mb-3">Corner Point 4</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="4" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" class="form-control coordinate-input" data-point="4" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Save Geofence</button>
+                                <button type="reset" class="btn btn-secondary">Reset</button>
+                            </div>
+
+                            <!-- Alert for validation -->
+                            <div class="alert alert-danger mt-3 d-none" id="validationAlert" role="alert">
+                                Please enter valid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let polygon = null;
+        let markers = [];
+        let currentPoint = 1;
+
+        function validateCoordinate(value, type) {
+            const num = parseFloat(value);
+            if (isNaN(num)) return false;
+            if (type === 'lat' && (num < -90 || num > 90)) return false;
+            if (type === 'lng' && (num < -180 || num > 180)) return false;
+            return true;
+        }
+
+        function updatePointCounter() {
+            document.getElementById('pointCount').textContent = currentPoint - 1;
+        }
+
+        function setInputValues(point, lat, lng) {
+            document.querySelector(`input[data-point="${point}"][data-type="lat"]`).value = lat.toFixed(6);
+            document.querySelector(`input[data-point="${point}"][data-type="lng"]`).value = lng.toFixed(6);
+        }
+
+        function updateMap() {
+            // Clear existing markers and polygon
+            markers.forEach(marker => marker.remove());
+            markers = [];
+            if (polygon) polygon.remove();
+
+            const coordinates = [];
+            let allValid = true;
+            let bounds = [];
+
+            // Collect coordinates from inputs
+            for (let i = 1; i <= 4; i++) {
+                const lat = document.querySelector(`input[data-point="${i}"][data-type="lat"]`).value;
+                const lng = document.querySelector(`input[data-point="${i}"][data-type="lng"]`).value;
+
+                if (validateCoordinate(lat, 'lat') && validateCoordinate(lng, 'lng')) {
+                    const latNum = parseFloat(lat);
+                    const lngNum = parseFloat(lng);
+                    coordinates.push([latNum, lngNum]);
+                    bounds.push([latNum, lngNum]);
+
+                    // Add marker
+                    const marker = L.marker([latNum, lngNum])
+                        .bindPopup(`Point ${i}: ${latNum.toFixed(6)}, ${lngNum.toFixed(6)}`)
+                        .addTo(map);
+                    markers.push(marker);
+                } else {
+                    allValid = false;
+                }
+            }
+
+            if (allValid && coordinates.length === 4) {
+                // Create polygon
+                coordinates.push(coordinates[0]); // Close the polygon
+                polygon = L.polygon(coordinates, {
+                    color: 'blue',
+                    fillColor: '#3388ff',
+                    fillOpacity: 0.2
+                }).addTo(map);
+
+                // Fit map to bounds
+                map.fitBounds(bounds);
+            }
+        }
+
+        // Add click handler to map
+        map.on('click', function(e) {
+            if (currentPoint <= 4) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                setInputValues(currentPoint, lat, lng);
+                currentPoint++;
+                updatePointCounter();
+                updateMap();
+            }
+        });
+
+        // Add event listeners to all coordinate inputs
+        document.querySelectorAll('.coordinate-input').forEach(input => {
+            input.addEventListener('input', updateMap);
+        });
+
+        // Handle form submission
+        document.getElementById('geofenceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const inputs = this.querySelectorAll('input[type="number"]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                const isLatitude = input.dataset.type === 'lat';
+                
+                if (!validateCoordinate(value, isLatitude ? 'lat' : 'lng')) {
+                    isValid = false;
+                }
+            });
+
+            const alert = document.getElementById('validationAlert');
+            if (!isValid) {
+                alert.classList.remove('d-none');
+            } else {
+                alert.classList.add('d-none');
+                // Here you would typically collect and send the data
+                console.log('Form is valid, coordinates can be processed');
+            }
+        });
+
+        // Handle form reset
+        document.getElementById('geofenceForm').addEventListener('reset', function() {
+            // Clear the map
+            markers.forEach(marker => marker.remove());
+            markers = [];
+            if (polygon) polygon.remove();
+            map.setView([0, 0], 2);
+            currentPoint = 1;
+            updatePointCounter();
+            document.getElementById('validationAlert').classList.add('d-none');
+        });
+    </script>
+</body>
+</html>

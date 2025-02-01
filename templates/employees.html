@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/responsiveDashboard.css')}}">
 
     {% if role == 'employee' %}
-    <script src="{{ url_for('static', filename='js/test.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/test.js') }}"></script>
     {% endif %}
 
 
@@ -63,7 +63,7 @@
                     <div class="option2 nav-option">
                         <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210183322/9.png"
                             class="nav-img" alt="articles">
-                        <a href="{{url_for('employees', role=role)}}"
+                        <a href="{{url_for('dashboard', role=role)}}"
                             style="text-decoration: none; color: black; font-size: larger; font-weight: 600;">Employees</a>
                     </div>
                     {% endif %}
@@ -96,73 +96,36 @@
                 </div>
             </div>
 
-
-            <div class="box-container">
-
-                <div class="box box1">
-                    <div class="text">
-                        <h2 class="topic-heading">{{on_site_count+off_site_count}}</h2>
-                        <h2 class="topic">Total Employees</h2>
-                    </div>
-
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210184645/Untitled-design-(31).png"
-                        alt="TotalEmployees">
-                </div>
-
-                <div class="box box2">
-                    <div class="text">
-                        <h2 class="topic-heading">{{on_site_count}}</h2>
-                        <h2 class="topic">On Site</h2>
-                    </div>
-
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210185030/14.png" alt="OnSite">
-                </div>
-
-                <div class="box box3">
-                    <div class="text">
-                        <h2 class="topic-heading">{{off_site_count}}</h2>
-                        <h2 class="topic">Not On Site</h2>
-                    </div>
-
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210184645/Untitled-design-(32).png"
-                        alt="NotOnSite">
-                </div>
-
-                <div class="box box4">
-                    <div class="text">
-                        <h2 class="topic-heading">0</h2>
-                        <h2 class="topic">Untracked</h2>
-                    </div>
-
-                    <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210185029/13.png" alt="Untracked">
-                </div>
-            </div>
-
-
             <div class="report-container">
-                <div class="report-header">
-                    <h1 class="recent-Articles">Recent Articles</h1>
-                    <button class="view">View All</button>
-                </div>
+                
 
                 <div class="report-body">
                     <div class="report-topic-heading">
                         <h3 class="t-op">Employee ID</h3>
+                        <h3 class="t-op">username</h3>
                         <h3 class="t-op">Name</h3>
                         <h3 class="t-op">Email</h3>
+                        <h3 class="t-op">phoneNo</h3>
+                        <h3 class="t-op">Designation</h3>
+                        <h3 class="t-op">Department</h3>
+                        <h3 class="t-op">dateJoin</h3>
                         <h3 class="t-op">Status</h3>
+
                     </div>
 
                     <div class="items">
                         {% for employee in employees %}
                         <div class="item1">
                             <h3 class="t-op-nextlvl">{{ employee.id }}</h3>
+                            <h3 class="t-op-nextlvl">{{ employee.userName}}</h3>
                             <h3 class="t-op-nextlvl">{{ employee.name }}</h3>
                             <h3 class="t-op-nextlvl">{{ employee.email }}</h3>
-                            <h3 class="t-op-nextlvl label-tag"
-                                style="background-color: {% if employee.status == 'On Site' %} green{% else %}red{% endif %};">
-                                {{ employee.status }}
-                            </h3>
+                            <h3 class="t-op-nextlvl">{{ employee.phoneNo }}</h3>
+                            <h3 class="t-op-nextlvl">{{ employee.designation }}</h3>
+                            <h3 class="t-op-nextlvl">{{ employee.department }}</h3>
+                            <h3 class="t-op-nextlvl">{{ employee.dateJoin }}</h3>
+                            <h3 class="t-op-nextlvl">{{ employee.status }}</h3>
+                            
                         </div>
                         {% endfor %}
 
@@ -223,12 +186,11 @@
                 </div>
             </div>
 
-
+            
             <div class="report-container">
                 <div class="report-header">
-                    {%if role == 'admin%}
-                        <button class="view">Geofence</button>
-                    {%endif%}
+                    <h1 class="recent-Articles">Recent Articles</h1>
+                    <button class="view">View All</button>
                 </div>
 
                 <div class="report-body">

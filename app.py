@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import jsonify
 from flask_socketio import send,SocketIO,join_room
 
+import requests
+
 from sqlalchemy import Enum
 
 from flask_login import UserMixin, login_user, LoginManager,login_required, logout_user, current_user
@@ -106,6 +108,8 @@ class Users(db.Model, UserMixin):
     password_hash = db.Column(db.String(200),nullable=False)
     # Role
     role = db.Column(Enum("admin", "employee", name="role_types"), nullable=False)
+    status = db.Column(Enum("On Site", "Off Site", name="status"), nullable=True)
+
 
     
 
@@ -243,11 +247,20 @@ def home():
 
 @app.route("/dashboard/<role>")
 def dashboard(role):
-    return render_template('dashboard.html', role=role)
+    employees = Users.query.filter_by(role='employee').all()
+    # Count On Site and Not On Site employees
+    on_site_count = sum(1 for employee in employees if employee.status == 'On Site')
+    off_site_count = len(employees) - on_site_count
+    return render_template('dashboard.html', role=role,employees=employees,on_site_count=on_site_count, off_site_count=off_site_count)
+
+@app.route('/employees')
+def employees(role='admin'):
+    employees = Users.query.filter_by(role='employee').all()
+    return render_template('employees.html', role=role,employees=employees)
 
 @app.route("/profile")
 def profile():
-    return render_template('profile.html')
+    return render_template('profile2.html')
 
 @app.route("/update_location", methods=['POST'])
 def update_location():
@@ -258,10 +271,21 @@ def update_location():
     if latitude is None or longitude is None:
         return jsonify({"error": "Missing latitude or longitude"}), 400
 
-    print(f"Received Location: Latitude {latitude}, Longitude {longitude}")
-    
-    # You can store the location in a database if needed
-    return jsonify({"message": "Location received", "latitude": latitude, "longitude": longitude})
+     # Call the check_location route
+    try:
+        # Construct the URL with the parameters for the check_location endpoint
+        check_location_url = f'http://127.0.0.1:5000/check_location?latitude={latitude}&longitude={longitude}'
+
+        # Send a GET request to check if the coordinates are inside the geofence
+        response = requests.get(check_location_url)
+        if response.status_code == 200:
+            result = response.json()
+            return jsonify(result)
+        else:
+            return jsonify({"error": "Error checking location."}), 500
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"Request failed: {str(e)}"}), 500
 
 def is_inside_geofence(lat, lng, geofence_points):
     """Checks if a point is inside a geofence."""
@@ -284,6 +308,13 @@ def is_inside_geofence(lat, lng, geofence_points):
                 inside = not inside
 
     return inside
+
+# Geofence points (hardcoded in the code) -  REPLACE WITH YOUR POINTS
+geofence_points = [
+                    (15.4869153, 74.9306135),  
+                    (15.4783736, 74.9271729),  
+                    (15.4832603, 74.9465056),  
+                    (15.4920739, 74.9438794),]
 
 @app.route('/check_location', methods=['GET'])  # Changed to GET
 def check_location():

@@ -38,4 +38,11 @@ if (!navigator.geolocation) {
 }
 }
 
-geoFindMe();
+while (true) {
+  var delayInMilliseconds = 1000; //1 second
+
+setTimeout(function() {
+  geoFindMe()
+}, delayInMilliseconds);
+  
+}

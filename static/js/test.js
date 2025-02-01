@@ -39,7 +39,7 @@ if (!navigator.geolocation) {
 }
 
 while (true) {
-  var delayInMilliseconds = 1000; //1 second
+  var delayInMilliseconds = 1000*60*10; //10 minute
 
 setTimeout(function() {
   geoFindMe()

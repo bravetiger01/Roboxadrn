@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/responsiveDashboard.css')}}">
 
     {% if role == 'employee' %}
-    <script src="{{ url_for('static', filename='js/test.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/test.js') }}"></script>
     {% endif %}
 
 
@@ -141,8 +141,9 @@
 
             <div class="report-container">
                 <div class="report-header">
-                    <h1 class="recent-Articles">Recent Articles</h1>
-                    <button class="view">View All</button>
+                    {% if role == 'admin' %}
+                        <a class="view" href="{{url_for('geofence')}}">Geofence</a>
+                    {% endif %}
                 </div>
 
                 <div class="report-body">
@@ -170,7 +171,7 @@
                 </div>
             </div>
         </div>
-        {%else%}
+        {% else %}
         <div class="main">
 
             <div class="searchbar2">
@@ -226,9 +227,9 @@
 
             <div class="report-container">
                 <div class="report-header">
-                    {%if role == 'admin%}
-                        <button class="view">Geofence</button>
-                    {%endif%}
+                    {% if role == 'admin' %}
+                        <button class="view"></button>
+                    {% endif %}
                 </div>
 
                 <div class="report-body">
@@ -258,7 +259,7 @@
                 </div>
             </div>
         </div>
-        {%endif%}
+        {% endif %}
     </div>
 
     <script src="{{url_for('static', filename='js/dashboard.js')}}"></script>

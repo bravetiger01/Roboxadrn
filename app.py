@@ -262,6 +262,38 @@ def employees(role='admin'):
 def profile():
     return render_template('profile2.html')
 
+@app.route("/geofence")
+def geofence():
+    return render_template('geofence.html')
+
+@app.route('/submit_geofence', methods=['POST'])
+def submit_geofence():
+    data = request.get_json()
+
+    # Check if 'coordinates' is present in the data
+    if not data or 'coordinates' not in data:
+        return jsonify({"status": "error", "message": "No coordinates found"}), 400
+
+    coordinates = data['coordinates']
+
+    # Validate coordinates (simple check)
+    if len(coordinates) != 4:
+        return jsonify({"status": "error", "message": "Geofence must have 4 points"}), 400
+
+    for point in coordinates:
+        lat = point.get('lat')
+        lng = point.get('lng')
+
+        if lat is None or lng is None:
+            return jsonify({"status": "error", "message": "Invalid coordinates"}), 400
+        if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+            return jsonify({"status": "error", "message": "Coordinates out of range"}), 400
+
+    # Here you would typically save the geofence to the database or perform other logic
+    # For now, we'll just return a success message
+    
+    return jsonify({"status": "success", "message": "Geofence saved successfully"}), 200
+
 @app.route("/update_location", methods=['POST'])
 def update_location():
     data = request.get_json()

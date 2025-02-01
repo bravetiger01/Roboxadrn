@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
             padding: 15px;
             margin-bottom: 15px;
         }
+
         #map {
             height: 400px;
             width: 100%;
@@ -21,17 +23,19 @@
             margin-top: 20px;
             cursor: crosshair;
         }
+
         .map-instructions {
             background-color: #e9ecef;
             padding: 10px;
             border-radius: 4px;
             margin-bottom: 15px;
         }
+
         .point-counter {
             background: white;
             padding: 5px 10px;
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             position: absolute;
             top: 10px;
             right: 10px;
@@ -39,6 +43,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container py-5">
         <div class="row justify-content-center">
@@ -68,11 +73,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Latitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="1" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="1"
+                                            data-type="lat" step="any" placeholder="Click on map or enter latitude"
+                                            required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Longitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="1" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="1"
+                                            data-type="lng" step="any" placeholder="Click on map or enter longitude"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -83,11 +92,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Latitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="2" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="2"
+                                            data-type="lat" step="any" placeholder="Click on map or enter latitude"
+                                            required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Longitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="2" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="2"
+                                            data-type="lng" step="any" placeholder="Click on map or enter longitude"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -98,11 +111,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Latitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="3" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="3"
+                                            data-type="lat" step="any" placeholder="Click on map or enter latitude"
+                                            required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Longitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="3" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="3"
+                                            data-type="lng" step="any" placeholder="Click on map or enter longitude"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -113,11 +130,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Latitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="4" data-type="lat" step="any" placeholder="Click on map or enter latitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="4"
+                                            data-type="lat" step="any" placeholder="Click on map or enter latitude"
+                                            required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Longitude</label>
-                                        <input type="number" class="form-control coordinate-input" data-point="4" data-type="lng" step="any" placeholder="Click on map or enter longitude" required>
+                                        <input type="number" class="form-control coordinate-input" data-point="4"
+                                            data-type="lng" step="any" placeholder="Click on map or enter longitude"
+                                            required>
                                     </div>
                                 </div>
                             </div>
@@ -129,7 +150,8 @@
 
                             <!-- Alert for validation -->
                             <div class="alert alert-danger mt-3 d-none" id="validationAlert" role="alert">
-                                Please enter valid coordinates. Latitude must be between -90 and 90, longitude between -180 and 180.
+                                Please enter valid coordinates. Latitude must be between -90 and 90, longitude between
+                                -180 and 180.
                             </div>
                         </form>
                     </div>
@@ -214,11 +236,11 @@
         }
 
         // Add click handler to map
-        map.on('click', function(e) {
+        map.on('click', function (e) {
             if (currentPoint <= 4) {
                 const lat = e.latlng.lat;
                 const lng = e.latlng.lng;
-                
+
                 setInputValues(currentPoint, lat, lng);
                 currentPoint++;
                 updatePointCounter();
@@ -232,7 +254,7 @@
         });
 
         // Handle form submission
-        document.getElementById('geofenceForm').addEventListener('submit', function(e) {
+        document.getElementById('geofenceForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const inputs = this.querySelectorAll('input[type="number"]');
             let isValid = true;
@@ -240,7 +262,7 @@
             inputs.forEach(input => {
                 const value = parseFloat(input.value);
                 const isLatitude = input.dataset.type === 'lat';
-                
+
                 if (!validateCoordinate(value, isLatitude ? 'lat' : 'lng')) {
                     isValid = false;
                 }
@@ -257,7 +279,7 @@
         });
 
         // Handle form reset
-        document.getElementById('geofenceForm').addEventListener('reset', function() {
+        document.getElementById('geofenceForm').addEventListener('reset', function () {
             // Clear the map
             markers.forEach(marker => marker.remove());
             markers = [];
@@ -267,6 +289,55 @@
             updatePointCounter();
             document.getElementById('validationAlert').classList.add('d-none');
         });
+
+        document.getElementById('geofenceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const coordinates = [];
+            let isValid = true;
+
+            // Collect coordinates from the form
+            for (let i = 1; i <= 4; i++) {
+                const lat = document.querySelector(`input[data-point="${i}"][data-type="lat"]`).value;
+                const lng = document.querySelector(`input[data-point="${i}"][data-type="lng"]`).value;
+
+                if (validateCoordinate(lat, 'lat') && validateCoordinate(lng, 'lng')) {
+                    coordinates.push({ lat: parseFloat(lat), lng: parseFloat(lng) });
+                } else {
+                    isValid = false;
+                }
+            }
+
+            const alert = document.getElementById('validationAlert');
+            if (!isValid || coordinates.length !== 4) {
+                alert.classList.remove('d-none');
+            } else {
+                alert.classList.add('d-none');
+
+                // Send coordinates to Flask
+                fetch('/submit_geofence', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ coordinates: coordinates })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Geofence saved successfully');
+                        } else {
+                            alert('Error saving geofence');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while saving the geofence.');
+                    });
+            }
+        });
+
     </script>
 </body>
+
 </html>

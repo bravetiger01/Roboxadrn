@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/dashboard.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/responsiveDashboard.css')}}">
 
-    {%if {role} == 'employee'%}
-        <script src="{{url_for('static', filename='js/test.js')}}"></script>
-    {%endif%}
+    {% if role == 'employee' %}
+        <script src="{{ url_for('static', filename='js/test.js') }}"></script>
+    {% endif %}
+
 
 </head>
 

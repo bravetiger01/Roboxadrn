@@ -105,7 +105,7 @@ class Users(db.Model, UserMixin):
     userName = db.Column(db.String(20), nullable=False, unique=True)
     password_hash = db.Column(db.String(200),nullable=False)
     # Role
-    role = db.Column(Enum("manager", "employee", name="role_types"), nullable=False)
+    role = db.Column(Enum("admin", "employee", name="role_types"), nullable=False)
 
     
 
@@ -248,6 +248,20 @@ def dashboard(role):
 @app.route("/profile")
 def profile():
     return render_template('profile.html')
+
+@app.route("/update_location", methods=['POST'])
+def update_location():
+    data = request.get_json()
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+
+    if latitude is None or longitude is None:
+        return jsonify({"error": "Missing latitude or longitude"}), 400
+
+    print(f"Received Location: Latitude {latitude}, Longitude {longitude}")
+    
+    # You can store the location in a database if needed
+    return jsonify({"message": "Location received", "latitude": latitude, "longitude": longitude})
 
 def is_inside_geofence(lat, lng, geofence_points):
     """Checks if a point is inside a geofence."""

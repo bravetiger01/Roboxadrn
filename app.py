@@ -312,16 +312,11 @@ def update_location():
 
      # Call the check_location route
     try:
+        print('hello2')
         # Construct the URL with the parameters for the check_location endpoint
-        check_location_url = f'http://127.0.0.1:5000/check_location?latitude={latitude}&longitude={longitude}'
+        check_location(latitude, longitude)
 
-        # Send a GET request to check if the coordinates are inside the geofence
-        response = requests.get(check_location_url)
-        if response.status_code == 200:
-            result = response.json()
-            return jsonify(result)
-        else:
-            return jsonify({"error": "Error checking location."}), 500
+        return jsonify({"success": "done"}), 500 
 
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Request failed: {str(e)}"}), 500
@@ -348,18 +343,17 @@ def is_inside_geofence(lat, lng, geofence_points):
 
     return inside
 
-@app.route('/check_location', methods=['GET'])
-def check_location():
+def check_location(latitude, longitude):
     try:
-        lat = float(request.args.get('latitude'))
-        lng = float(request.args.get('longitude'))
-        employee_id = request.args.get('employee_id')  # Get employee ID (or another identifier)
+        lat = latitude
+        lng = longitude
 
         
         # Check if the location is inside the geofence
         if is_inside_geofence(lat, lng, coordinates_str):
+            print('hello')
             # If inside geofence, update the employee status
-            employee = Users.query.get(employee_id)  # Retrieve employee by ID
+            employee =Users.query.filter_by(username='ronit').first()
 
             if employee:
                 employee.status = 'On Site'

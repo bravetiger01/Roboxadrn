@@ -19,7 +19,7 @@ function geoFindMe() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ latitude: latitude, longitude: longitude,employee_id: employee_id  })
+      body: JSON.stringify({ latitude: latitude, longitude: longitude  })
     })
       .then(response => response.json())
       .then(data => console.log("Server Response:", data))

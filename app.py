@@ -125,7 +125,16 @@ class Users(db.Model, UserMixin):
         return '<Name %r>' % self.name
 
 
-
+class Geofence(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    top_left_lat = db.Column(db.Float, nullable=False)
+    top_left_lon = db.Column(db.Float, nullable=False)
+    top_right_lat = db.Column(db.Float, nullable=False)
+    top_right_lon = db.Column(db.Float, nullable=False)
+    bottom_left_lat = db.Column(db.Float, nullable=False)
+    bottom_left_lon = db.Column(db.Float, nullable=False)
+    bottom_right_lat = db.Column(db.Float, nullable=False)
+    bottom_right_lon = db.Column(db.Float, nullable=False)
 
 with app.app_context():
     db.create_all()
@@ -240,6 +249,59 @@ def dashboard(role):
 def profile():
     return render_template('profile.html')
 
+@app.route('/set_geofence', methods=['POST'])
+def set_geofence():
+    lat1 = float(request.form['top_left_lat'])
+    lon1 = float(request.form['top_left_lon'])
+    lat2 = float(request.form['top_right_lat'])
+    lon2 = float(request.form['top_right_lon'])
+    lat3 = float(request.form['bottom_left_lat'])
+    lon3 = float(request.form['bottom_left_lon'])
+    lat4 = float(request.form['bottom_right_lat'])
+    lon4 = float(request.form['bottom_right_lon'])
+
+    # Store the 4-point geofence coordinates
+    geofence = Geofence(top_left_lat=lat1, top_left_lon=lon1, 
+                        top_right_lat=lat2, top_right_lon=lon2, 
+                        bottom_left_lat=lat3, bottom_left_lon=lon3, 
+                        bottom_right_lat=lat4, bottom_right_lon=lon4)
+    db.session.add(geofence)
+    db.session.commit()
+
+    return "Geofence has been set successfully!", 200
+
+@app.route('/update_location', methods=['POST'])
+def update_location():
+    data = request.json
+    emp_lat, emp_lon = data['latitude'], data['longitude']
+
+    geofence = Geofence.query.first()
+    if geofence:
+        # Geofence coordinates
+        lat1, lon1 = geofence.top_left_lat, geofence.top_left_lon
+        lat2, lon2 = geofence.top_right_lat, geofence.top_right_lon
+        lat3, lon3 = geofence.bottom_left_lat, geofence.bottom_left_lon
+        lat4, lon4 = geofence.bottom_right_lat, geofence.bottom_right_lon
+
+        # Check if employee is within the geofence (Rectangle check)
+        # Latitude range: between bottom and top latitude
+        lat_min = min(lat1, lat3)
+        lat_max = max(lat1, lat3)
+        
+        # Longitude range: between left and right longitude
+        lon_min = min(lon1, lon2)
+        lon_max = max(lon1, lon2)
+
+        if lat_min <= emp_lat <= lat_max and lon_min <= emp_lon <= lon_max:
+            status = "on-site"
+        else:
+            status = "off-site"
+
+       
+
+        return jsonify({'status': status})
+
+    return jsonify({'error': 'Geofence not set'}), 400
 
 @app.route("/upload_file", methods=["POST","GET"])
 def upload_file():
